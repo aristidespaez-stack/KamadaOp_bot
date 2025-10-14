@@ -72,17 +72,22 @@ async def recibir_ids(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ IDs inválidos. Ingrese los IDs separados por coma (solo números enteros):")
         return ESPERANDO_IDS
         
-    await update.message.reply_text("📦 Ingrese la cantidad de **cajas** producidas (solo números enteros positivos):")
+    # Mensaje modificado para permitir decimales (ej: 1.5, 2.25)
+    await update.message.reply_text("📦 Ingrese la cantidad de **cajas** producidas (ej: 1, 1.5, 2.25):")
     return ESPERANDO_CAJA
 
 async def recibir_caja(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        cajas = int(update.message.text.strip())
+        # Convertir a float y reemplazar coma por punto para aceptar decimales
+        texto_cantidad = update.message.text.strip().replace(',', '.')
+        cajas = float(texto_cantidad)
+        
         if cajas <= 0:
             raise ValueError
         context.user_data['cantidad'] = cajas
     except ValueError:
-        await update.message.reply_text("❌ Cantidad inválida. Ingrese el número de cajas (solo números enteros positivos):")
+        # Mensaje de error actualizado
+        await update.message.reply_text("❌ Cantidad inválida. Ingrese el número de cajas (solo números, puede usar decimales):")
         return ESPERANDO_CAJA
         
     d = context.user_data
@@ -144,3 +149,4 @@ def build_linea_handler():
         },
         fallbacks=[CommandHandler("cancel", confirmar)]
     )
+    # ¡La llave extra '}' estaba aquí y ya fue eliminada!
